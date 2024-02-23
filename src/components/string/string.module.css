@@ -1,0 +1,25 @@
+.form {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 12px;
+}
+
+.input {
+  width: 377px;
+}
+
+.circles {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  padding-top: 120px;
+}
+
+.modified {
+  border-color: #7FE051;
+}
+
+.changing {
+  border-color: #D252E1;
+}
