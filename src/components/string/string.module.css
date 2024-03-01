@@ -6,7 +6,11 @@
 }
 
 .input {
-  width: 377px;
+  width: 411px;
+}
+
+.button {
+  width: 178px;
 }
 
 .circles {
@@ -14,12 +18,4 @@
   gap: 16px;
   justify-content: center;
   padding-top: 120px;
-}
-
-.modified {
-  border-color: #7FE051;
-}
-
-.changing {
-  border-color: #D252E1;
 }

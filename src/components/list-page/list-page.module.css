@@ -1,0 +1,39 @@
+.controlPanel {
+  display:flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.main {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+  padding-right: 80px;
+  max-width: 952px;
+}
+
+.circles {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 52px;
+}
+
+.input {
+  min-width: 204px;
+  max-width: 204px;
+}
+
+.button {
+  width: 100%;
+}
+
+.circleContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px
+}
