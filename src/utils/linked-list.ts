@@ -94,10 +94,16 @@ export class LinkedList<T> implements ILinkedList<T> {
     if (this.head){
       this.head = this.head?.next || null;
     }
+    this.size--
   }
 
   deleteTail() {
     if (!this.head) {
+      return
+    }
+    if (this.getSize() === 1) {
+      this.head = null;
+      this.size--;
       return
     }
     let curr = this.head;
@@ -106,8 +112,8 @@ export class LinkedList<T> implements ILinkedList<T> {
       curr = curr.next;
       next = curr.next;
     }
-    console.log(curr);
-    curr.next = null
+    curr.next = null;
+    this.size--
   }
 
   append(element: T) {

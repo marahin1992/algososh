@@ -7,92 +7,209 @@ import { Circle } from '../ui/circle/circle';
 import { ElementStates } from '../../types/element-states';
 import { Stack } from '../../utils/stack';
 import { delay } from '../../utils/delay';
-import { SHORT_DELAY_IN_MS } from '../../constants/delays';
+import { DELAY_IN_MS, SHORT_DELAY_IN_MS } from '../../constants/delays';
 import { LinkedList } from '../../utils/linked-list';
 import { ArrowIcon } from '../ui/icons/arrow-icon';
+
+export enum ListLoading {
+  addHead ='addHead',
+  delHead ='delHead',
+  addTail ='addTail',
+  delTail ='delTail',
+  idAdd ='idAdd',
+  idDel ='idDel',
+}
 
 
 let linkedList = new LinkedList<string>();
 
 export const ListPage: React.FC = () => {
 
+  const [isLoading, setIsLoading] = useState<ListLoading | null>(null)
+
+  const [stateArr, setStateArr] = useState<ElementStates[]>([])
+  
   const [newElem, setNewElem] = useState<string>('');
 
-  const [index, setIndex] = useState<number | null>(null);
+  const [index, setIndex] = useState<number | ''>('');
 
-  const [editedElement, setEditedElement] = useState<{ value: string | null; state: ElementStates; id: number | null }>({ value: null, state: ElementStates.Changing, id: null })
+  const [editedElement, setEditedElement] = useState<{ value: string | undefined; state: ElementStates; id: number | null; head: boolean }>({ value: undefined, state: ElementStates.Changing, id: null, head: true })
 
   const [addDisabled, setAddDisabled] = useState(true);
 
   const [delDisabled, setDelDisabled] = useState(true);
 
+  const [idAddDisabled, setIdAddDisabled] = useState(true);
+
+  const [idDelDisabled, setIdDelDisabled] = useState(true);
+
   const [arr, setArr] = useState<string[]>([]);
 
-  const [isMethod, setIsMethod] = useState(false);
+  const disableAll = () => {
+    setAddDisabled(true);
+    setDelDisabled(true);
+    setIdAddDisabled(true);
+    setIdDelDisabled(true);
+  }
 
   const handleChangeNewElement = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.value) {
       setNewElem('');
       setAddDisabled(true);
+      setIdAddDisabled(true);
       return
     }
     setNewElem(e.target.value);
     setAddDisabled(false);
+    if (index !== '') {
+      setIdAddDisabled(false);
+    }
   }
 
   const handleChangeIndex = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.value) {
-      setIndex(null);
-      setAddDisabled(true);
+      setIndex('');
+      setIdAddDisabled(true);
+      setIdDelDisabled(true);
       return
     }
     setIndex(Number(e.target.value));
-    setAddDisabled(false);
+    if (!addDisabled) {setIdAddDisabled(false);};
+    if (!delDisabled) {setIdDelDisabled(false);};
   }
 
-  const animateMethod = async () => {
-    setIsMethod(true);
-    await delay(SHORT_DELAY_IN_MS);
-    setIsMethod(false);
-  }
 
   const addInHead = async () => {
+    setIsLoading(ListLoading.addHead);
+    disableAll();
     linkedList.prepend(newElem);
-    setArr(linkedList.print());
+    setEditedElement({...editedElement, value: newElem, id: 0, head: true});
     setNewElem('');
+    setIndex('');
+    await delay(DELAY_IN_MS);
+    setArr(linkedList.print());
+    setEditedElement({...editedElement, value: undefined, id: null, head: true});
+    setStateArr(linkedList.print().map((el, id) => {return (id === 0) ? ElementStates.Modified : ElementStates.Default}))
+    await delay(DELAY_IN_MS);
+    setStateArr(arr.map((el, id) => {return ElementStates.Default}))
+    
     setAddDisabled(true);
     setDelDisabled(false);
-    animateMethod();
-
+    setIsLoading(null);
   }
 
   const addInTail = async () => {
+    setIsLoading(ListLoading.addTail);
+    disableAll();
     linkedList.append(newElem);
-    setArr(linkedList.print());
+    setEditedElement({...editedElement, value: newElem, id: arr.length - 1, head: true});
     setNewElem('');
+    setIndex('');
+    await delay(DELAY_IN_MS);
+    setArr(linkedList.print());
+    setEditedElement({...editedElement, value: undefined, id: null, head: true});
+    setStateArr(linkedList.print().map((el, id) => {return (id === arr.length) ? ElementStates.Modified : ElementStates.Default}))
+    await delay(DELAY_IN_MS);
+    setStateArr(arr.map((el, id) => {return ElementStates.Default}))
     setAddDisabled(true);
     setDelDisabled(false);
-    animateMethod();
+    setIsLoading(null);
 
   }
 
   const deleteHead = async () => {
-    await animateMethod();
+    setIsLoading(ListLoading.delHead);
+    disableAll();
     linkedList.deleteHead();
+    setEditedElement({...editedElement, value: arr[0], id: 0, head: false});
+    setArr(arr.map((el,id) => {return id === 0 ? '' : el}));
+    await delay(DELAY_IN_MS);
+    setEditedElement({...editedElement, value: undefined, id: null, head: true});
     setArr(linkedList.print());
+    setDelDisabled(false);
     if (linkedList.getSize() <= 0) {
       setDelDisabled(true);
     }
+    setIsLoading(null);
   }
 
   const deleteTail = async () => {
-    await animateMethod();
+    setIsLoading(ListLoading.delTail);
+    disableAll();
     linkedList.deleteTail();
+    setEditedElement({...editedElement, value: arr[arr.length - 1], id: arr.length - 1, head: false});
+    setArr(arr.map((el,id) => {return id === arr.length - 1 ? '' : el}));
+    await delay(DELAY_IN_MS);
+    setEditedElement({...editedElement, value: undefined, id: null, head: true});
     setArr(linkedList.print());
+    setDelDisabled(false);
     if (linkedList.getSize() <= 0) {
       setDelDisabled(true);
     }
+    setIsLoading(null);
   }
+
+  const handleAddByIndex = async () => {
+    if (index === '' || index > arr.length - 1) {
+      alert('введите корректный индекс');
+      return
+    }
+    setIsLoading(ListLoading.idAdd);
+    disableAll();
+    let elem = newElem;
+    let elemId = index;
+    
+    linkedList.addByIndex(newElem,index);
+    setNewElem('');
+    setIndex('');
+
+    for (let i = 0; i <= index; i++) {
+      setStateArr(stateArr.map((el,id) => {return id <= i - 1 ? ElementStates.Changing : el}));
+      setEditedElement({...editedElement, value: elem, id: i, head: true});
+      await delay(DELAY_IN_MS);
+    }
+    setEditedElement({...editedElement, value: undefined, id: null, head: true});
+    setArr(linkedList.print());
+    setStateArr(linkedList.print().map((el, id) => {return id === elemId ? ElementStates.Modified : ElementStates.Default}));
+    await delay(DELAY_IN_MS);
+    setStateArr(stateArr.map(() => {return ElementStates.Default}));
+    setDelDisabled(false);
+    setIsLoading(null);
+  }
+
+  const handleDeleteByIndex = async () => {
+    if (index === '' || index > arr.length - 1) {
+      alert('введите корректный индекс');
+      return
+    }
+    setIsLoading(ListLoading.idDel);
+    disableAll();
+    linkedList.deleteByIndex(index);
+
+    for (let i = 0; i <= index; i++) {
+      setStateArr(stateArr.map((el,id) => {return id === i ? ElementStates.Changing : el}));
+      await delay(DELAY_IN_MS);
+    }
+    setEditedElement({...editedElement, value: arr[index], id: index, head: false});
+    setArr(arr.map((el,id) => {return id === index ? '' : el}));
+    await delay(DELAY_IN_MS);
+
+    setArr(linkedList.print());
+    setStateArr(linkedList.print().map(() => {return ElementStates.Default}));
+    setEditedElement({...editedElement, value: undefined, id: null, head: false});
+
+
+    setIndex('');
+
+
+    setDelDisabled(false);
+    if (linkedList.getSize() <= 0) {
+      setDelDisabled(true);
+    }
+    setIsLoading(null);
+  }
+
+  
 
 
   return (
@@ -113,24 +230,28 @@ export const ListPage: React.FC = () => {
             extraClass={styles.button}
             onClick={addInHead}
             disabled={addDisabled}
+            isLoader={isLoading === ListLoading.addHead ? true : false}
           />
           <Button
             text='Добавить в tail'
             extraClass={styles.button}
             onClick={addInTail}
             disabled={addDisabled}
+            isLoader={isLoading === ListLoading.addTail ? true : false}
           />
           <Button
             text='Удалить из head'
             extraClass={styles.button}
             onClick={deleteHead}
             disabled={delDisabled}
+            isLoader={isLoading === ListLoading.delHead ? true : false}
           />
           <Button
             text='Удалить из tail'
             extraClass={styles.button}
             onClick={deleteTail}
             disabled={delDisabled}
+            isLoader={isLoading === ListLoading.delTail ? true : false}
           />
         </div>
         <div className={styles.main}>
@@ -139,20 +260,23 @@ export const ListPage: React.FC = () => {
             extraClass={styles.input}
             type='number'
             min={0}
+            max={arr.length - 1}
             value={index?.toString()}
             onChange={handleChangeIndex}
           />
           <Button
             text='Добавить по индексу'
             extraClass={styles.button}
-            onClick={deleteTail}
-            disabled={addDisabled}
+            onClick={handleAddByIndex}
+            disabled={idAddDisabled}
+            isLoader={isLoading === ListLoading.idAdd ? true : false}
           />
           <Button
             text='Удалить по индексу'
             extraClass={styles.button}
-            onClick={deleteTail}
-            disabled={delDisabled}
+            onClick={handleDeleteByIndex}
+            disabled={idDelDisabled}
+            isLoader={isLoading === ListLoading.idDel ? true : false}
           />
         </div>
       </div>
@@ -165,20 +289,28 @@ export const ListPage: React.FC = () => {
                 ? (<Circle
                   letter={elem}
                   key={id}
-                  state={(isMethod && id === arr.length - 1) ? ElementStates.Changing : ElementStates.Default}
+                  state={stateArr[id] ? stateArr[id] : ElementStates.Default}
                   index={id}
-                  head={id === 0 ? 'head' : ''}
-                  tail={id != 0 && id === arr.length - 1 ? 'tail' : ''}
+                  head={(editedElement.id === id && editedElement.head === true)
+                    ? (<Circle letter={editedElement.value} isSmall={true} state={editedElement.state}/>) 
+                    : (id === 0 ? 'head' : '')}
+                  tail={(editedElement.id === id && editedElement.head === false)
+                    ? (<Circle letter={editedElement.value} isSmall={true} state={editedElement.state}/>) 
+                    : (id != 0 && id === arr.length - 1 ? 'tail' : '')}
                 />)
                 : (<div className={styles.circleContainer} key={id}>
                   <ArrowIcon/>
                   <Circle
                     letter={elem}
                     key={id}
-                    state={(isMethod && id === arr.length - 1) ? ElementStates.Changing : ElementStates.Default}
+                    state={stateArr[id] ? stateArr[id] : ElementStates.Default}
                     index={id}
-                    head={id === 0 ? 'head' : ''}
-                    tail={id != 0 && id === arr.length - 1 ? 'tail' : ''}
+                    head={(editedElement.id === id && editedElement.head === true)
+                      ? (<Circle letter={editedElement.value} isSmall={true} state={editedElement.state}/>) 
+                      : (id === 0 ? 'head' : '')}
+                    tail={(editedElement.id === id && editedElement.head === false)
+                      ? (<Circle letter={editedElement.value} isSmall={true} state={editedElement.state}/>) 
+                      : (id != 0 && id === arr.length - 1 ? 'tail' : '')}
                   />
                 </div>)
             })}
