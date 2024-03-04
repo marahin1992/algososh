@@ -23,12 +23,12 @@ export const FibonacciPage: React.FC = () => {
 
   const [result, setResult] = useState<number[]>([]);
 
-  const [fibIndex, setFibIndex] = useState<number>();
+  const [fibIndex, setFibIndex] = useState<number | ''>('');
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.value) {
       setDisabled(true);
-      setFibIndex(undefined);
+      setFibIndex('');
       return
     }
     let index = Number(e.target.value)
@@ -46,8 +46,11 @@ export const FibonacciPage: React.FC = () => {
     e.preventDefault();
     setDisabled(true);
     setIsLoader(true);
-    console.log(styles.input);
     setResult([]);
+
+    if (fibIndex === '') {
+      return
+    }
     
     let fibResult = getFibonacciNumber(fibIndex!);
     
@@ -70,7 +73,7 @@ export const FibonacciPage: React.FC = () => {
           max={19} 
           min={0}
           isLimitText 
-          value={fibIndex || undefined} 
+          value={fibIndex.toString()} 
           onChange={handleChange}
         />
         <Button 

@@ -74,8 +74,10 @@ export const ListPage: React.FC = () => {
       return
     }
     setIndex(Number(e.target.value));
-    if (!addDisabled) {setIdAddDisabled(false);};
-    if (!delDisabled) {setIdDelDisabled(false);};
+    if (Number(e.target.value) >= 0 && Number(e.target.value) <= arr.length - 1){
+      if (!addDisabled) {setIdAddDisabled(false);};
+      if (!delDisabled) {setIdDelDisabled(false);};
+    }
   }
 
 
@@ -187,7 +189,7 @@ export const ListPage: React.FC = () => {
     linkedList.deleteByIndex(index);
 
     for (let i = 0; i <= index; i++) {
-      setStateArr(stateArr.map((el,id) => {return id === i ? ElementStates.Changing : el}));
+      setStateArr(stateArr.map((el,id) => {return id <= i ? ElementStates.Changing : el}));
       await delay(DELAY_IN_MS);
     }
     setEditedElement({...editedElement, value: arr[index], id: index, head: false});

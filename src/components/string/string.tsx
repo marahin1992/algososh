@@ -17,20 +17,27 @@ export type StringElement = {
 
 export const StringComponent: React.FC = () => {
 
-  const [disabled, setDisabled] = useState(false);
+  const [disabled, setDisabled] = useState(true);
 
   const [arr, setArr] = useState<StringElement[]>([]);
 
   const [str, setStr] = useState('');
 
+  const [isLoader, setIsLoader] = useState(false);
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setStr(e.target.value);
+    if (e.target.value === '') {
+      setDisabled(true)
+    } else {
+      setDisabled(false)
+    }
   }
 
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setDisabled(true);
+    setIsLoader(true);
     let objectArr = str.split('').map((elem): StringElement => { return {value: elem, type: ElementStates.Default}} );
     let result: StringElement[][] = [];
     if (objectArr.length > 1) {
@@ -42,7 +49,7 @@ export const StringComponent: React.FC = () => {
       await delay(DELAY_IN_MS);
       setArr(result[i]);
     }
-    setDisabled(false);
+    setIsLoader(false);
   }
 
   return (
@@ -58,10 +65,10 @@ export const StringComponent: React.FC = () => {
         />
         <Button 
           extraClass={styles.button}
-          text={disabled ? "" : "Развернуть"} 
+          text='Развернуть' 
           type='submit' 
           disabled={disabled} 
-          isLoader={disabled}
+          isLoader={isLoader}
         />
       </form>
       {

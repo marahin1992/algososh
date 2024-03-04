@@ -1,5 +1,5 @@
 import styles from './sorting-page.module.css'
-import React, { MouseEventHandler, useState } from "react";
+import React, { MouseEventHandler, useEffect, useState } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { RadioInput } from "../ui/radio-input/radio-input";
 import { Button } from "../ui/button/button";
@@ -20,6 +20,8 @@ export const SortingPage: React.FC = () => {
 
   const [isLoader, setIsLoader] = useState({[Direction.Ascending]: false, [Direction.Descending]: false})
 
+  
+
   function randomArr() {
     let length = Math.floor(Math.random() * (18 - 3) + 3);
     return [...Array(length)].map(() => Math.floor(Math.random() * 100))
@@ -32,6 +34,8 @@ export const SortingPage: React.FC = () => {
       setArr((arr) => [...arr, { value: elem, type: ElementStates.Default }])
     })
   }
+
+  useEffect(() => {generateNewArr()}, []);
 
   function setDefaultState() {
     let defArr = [...arr];
@@ -62,7 +66,6 @@ export const SortingPage: React.FC = () => {
       result = await selectionSort(arr, direction);
     }
 
-    console.log(result);
 
     for (let i = 0; i < result.length; i++) {      
       setArr(result[i]);

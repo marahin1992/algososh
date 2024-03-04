@@ -9,6 +9,7 @@ import { Stack } from '../../utils/stack';
 import { delay } from '../../utils/delay';
 import { SHORT_DELAY_IN_MS } from '../../constants/delays';
 import { Queue } from '../../utils/queue';
+import { Loader } from '../../types/loaders';
 
 let queue = new Queue<string>(7);
 
@@ -29,6 +30,8 @@ export const QueuePage: React.FC = () => {
   const [isEnqueue, setIsEnqueue] = useState(false);
 
   const [isDequeue, setIsDequeue] = useState(false);
+
+  const [isLoader, setIsLoader] = useState<Loader | null>(null);
 
   useEffect(() => {
     queue.clear();
@@ -63,28 +66,35 @@ export const QueuePage: React.FC = () => {
   }
 
   const addElement = async () => {
+    setIsLoader(Loader.Add);
+    setDelDisabled(true);
     queue.enqueue(newElem);
     setArr(queue.elements());
     setHead(queue.getHead());
     setTail(queue.getTail());
     setNewElem('');
-    setAddDisabled(true);
+    setAddDisabled(true);    
+    await animateEnqueue();
     setDelDisabled(false);
-    animateEnqueue();
+    setIsLoader(null);
 
   }
 
   const deleteElement = async () => {
+    setIsLoader(Loader.Del);
+    setDelDisabled(true);
     await animateDequeue();
     queue.dequeue();
     setHead(queue.getHead());
     setTail(queue.getTail());
     setArr(queue.elements());    
     if (queue.isEmpty()) {
-      setDelDisabled(true);
       setTail(null);
       setHead(null);
+    } else {
+      setDelDisabled(false);
     }
+    setIsLoader(null);
   }
 
   const clearQueue = async () => {
@@ -115,12 +125,14 @@ export const QueuePage: React.FC = () => {
             extraClass={styles.button}
             onClick={addElement}
             disabled={addDisabled}
+            isLoader={isLoader === Loader.Add ? true : false}
           />
           <Button
             text='Удалить'
             extraClass={styles.button}
             onClick={deleteElement}
             disabled={delDisabled}
+            isLoader={isLoader === Loader.Del ? true : false}
           />
         </div>
         <Button

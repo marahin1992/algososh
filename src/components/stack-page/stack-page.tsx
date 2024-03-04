@@ -8,8 +8,11 @@ import { ElementStates } from '../../types/element-states';
 import { Stack } from '../../utils/stack';
 import { delay } from '../../utils/delay';
 import { SHORT_DELAY_IN_MS } from '../../constants/delays';
+import { Loader } from '../../types/loaders';
 
 let stack = new Stack<string>();
+
+
 
 export const StackPage: React.FC = () => {
 
@@ -22,6 +25,8 @@ export const StackPage: React.FC = () => {
   const [arr, setArr] = useState<string[]>([]);
 
   const [isMethod, setIsMethod] = useState(false);
+
+  const [isLoader, setIsLoader] = useState<Loader | null>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.value) {
@@ -40,22 +45,27 @@ export const StackPage: React.FC = () => {
   }
 
   const addNewElement = async () => {
+    setIsLoader(Loader.Add);
+    setDelDisabled(true);
     stack.push(newElem);
     setArr(stack.get());
     setNewElem('');
-    setAddDisabled(true);
+    setAddDisabled(true);    
+    await animateMethod();
     setDelDisabled(false);
-    animateMethod();
-
+    setIsLoader(null);
   }
 
   const deleteTopElement = async () => {
+    setIsLoader(Loader.Del);
+    setDelDisabled(true);
     await animateMethod();
     stack.pop();
     setArr(stack.get());
-    if (stack.getSize() <= 0) {
-      setDelDisabled(true);
-    }
+    if (stack.getSize() > 0) {
+      setDelDisabled(false);
+    } 
+    setIsLoader(null);
   }
 
   const clearStack = async () => {
@@ -84,12 +94,14 @@ export const StackPage: React.FC = () => {
             extraClass={styles.button}
             onClick={addNewElement}
             disabled={addDisabled}
+            isLoader={isLoader === Loader.Add ? true : false}
           />
           <Button
             text='Удалить'
             extraClass={styles.button}
             onClick={deleteTopElement}
             disabled={delDisabled}
+            isLoader={isLoader === Loader.Del ? true : false}
           />
         </div>
         <Button
