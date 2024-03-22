@@ -1,0 +1,21 @@
+.form {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 12px;
+}
+
+.input {
+  width: 411px;
+}
+
+.button {
+  width: 178px;
+}
+
+.circles {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  padding-top: 120px;
+}
