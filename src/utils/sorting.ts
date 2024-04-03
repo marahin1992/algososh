@@ -7,6 +7,10 @@ export type SortingObject = {
 }
 
 export async function bubbleSort(array: SortingObject[], direction: Direction) {
+  if (array.length === 0) {
+    return []
+  }
+  
   let result: SortingObject[][] = [];
   for (let i = 0; i < array.length; i++) {
     for (let j = 0; j < array.length - 1 - i; j++) {
@@ -40,6 +44,9 @@ export async function bubbleSort(array: SortingObject[], direction: Direction) {
 }
 
 export async function selectionSort(array: SortingObject[], direction: Direction) {
+  if (array.length === 0) {
+    return []
+  }
   let result: SortingObject[][] = [];
   for (let i = 0; i < array.length; i++) {
     let index = i;
